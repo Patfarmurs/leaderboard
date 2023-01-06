@@ -1,3 +1,4 @@
+import Leaderboard from './modules/Leaderboard.js';
 import Display from './modules/Display.js';
 
 const name = document.getElementById('name');
@@ -5,8 +6,22 @@ const score = document.getElementById('score');
 const submit = document.querySelector('.submit');
 const refresh = document.querySelector('.refresh');
 
+const url = 'https://us-central1-js-capstone-backend.cloudfunctions.net/api/games/Oawl0gMZlyz9hcMNVFUQ';
+const api = new Leaderboard(url);
+
+// On Page Load
+const requestUrl = `${url}/scores/`;
+api.getData(requestUrl);
+
+setTimeout(() => {
+  document.addEventListener('DOMContentLoaded', () => {
+    api.getData(requestUrl);
+  });
+}, 1000);
+
 const display = new Display();
 
+// Submit Button Event
 submit.addEventListener('click', (e) => {
   e.preventDefault();
   if (e.key === 'Enter') {
@@ -19,16 +34,32 @@ submit.addEventListener('click', (e) => {
     score.setCustomValidity('Please check input score field.');
     score.reportValidity();
   } else if (name.value.trim() && score.value) {
+    api.addData(requestUrl, name.value.trim(), score.value);
     submit.setCustomValidity('"Leaderboard score created correctly.');
     submit.reportValidity();
     name.value = '';
     score.value = '';
   }
+  setTimeout(() => {
+    api.getData(requestUrl);
+    const arr = JSON.parse(localStorage.getItem('data'));
+    display.createList(arr);
+  }, 1000);
 });
 
+// Refresh Button Event
 refresh.addEventListener('click', () => {
+  api.getData(requestUrl);
   if (localStorage.getItem('data')) {
     const arr = JSON.parse(localStorage.getItem('data'));
     display.createList(arr);
   }
 });
+
+// On Page Load
+window.onload = () => {
+  if (localStorage.getItem('data')) {
+    const arr = JSON.parse(localStorage.getItem('data'));
+    display.createList(arr);
+  }
+};
