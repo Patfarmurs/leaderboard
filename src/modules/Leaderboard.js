@@ -1,40 +1,40 @@
-export default class Leaderboard {
-    constructor(url) {
-      this.url = url;
-    }
+const API_URL = 'https://us-central1-js-capstone-backend.cloudfunctions.net/api/games/Patrick/scores/';
+const addTableRow = (scoreData) => {
+    const tableBody = document.getElementById('person');
+    tableBody.innerHTML = '';
+    scoreData.forEach((individualScore) => {
+      const { user, score } = individualScore;
+      const tableRow = document.createElement('tr');
+      tableBody.appendChild(tableRow);
+      const userInfo = document.createElement('td');
+      userInfo.innerHTML = `${user} : ${score}`;
+      tableRow.appendChild(userInfo);
+    });
+  };
   
-    createGameID = async (url) => {
-      await fetch(url, {
+  const fetchData = async () => {
+    const resource = await fetch(API_URL);
+    const json = await resource.json();
+    const data = json.result;
+    addTableRow(data);
+  };
+  
+  const sendData = async (event) => {
+    event.preventDefault();
+  
+    const user = document.getElementById('name').value;
+    const score = document.getElementById('score').value;
+  
+    await fetch(API_URL,
+      {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: 'The Mavericks Game' }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          localStorage.setItem('gameID', JSON.stringify(data));
-        });
-    };
+        body: JSON.stringify({ user, score }),
+        headers: { 'content-type': 'application/json; charset=UTF-8' },
+      });
   
-    getData = async (url) => {
-      await fetch(url, {
-        method: 'GET',
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          localStorage.setItem('data', JSON.stringify(data));
-        });
-    };
+    event.target.reset();
+    fetchData();
+  };
   
-    addData = async (url, name, score) => {
-      await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: JSON.stringify({ user: name, score }),
-      })
-        .then((response) => response.json());
-    };
-  }
+  export { fetchData, sendData };
+ 
