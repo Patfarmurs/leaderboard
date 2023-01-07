@@ -1,3 +1,4 @@
+import './style.css';
 import { fetchData, sendData } from './modules/Leaderboard.js';
 
 const refresh = document.getElementById('refresh');
